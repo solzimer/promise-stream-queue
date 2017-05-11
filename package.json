@@ -1,5 +1,5 @@
 {
-  "name": "promise-stream",
+  "name": "promise-stream-queue",
   "version": "0.0.1",
   "description": "Promise Stream. Queue promises and retrieve the resolved/rejected ones in the inserted order",
   "author": "David Gómez Matarrodona <solzimer@gmail.com>",
@@ -10,6 +10,7 @@
   "repository": "solzimer/promise-stream",
   "keywords": [
     "promise",
+		"stream",
     "FIFO",
     "async",
     "queue",
