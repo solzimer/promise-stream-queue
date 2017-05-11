@@ -1,0 +1,18 @@
+{
+  "name": "promise-stream",
+  "version": "0.0.1",
+  "description": "Promise Stream. Queue promises and retrieve the resolved/rejected ones in the inserted order",
+  "author": "David Gómez Matarrodona <solzimer@gmail.com>",
+  "url": "https://github.com/owner/project/issues",
+  "email": "solzimer@gmail.com",
+  "main": "main.js",
+  "license": "MIT",
+  "repository": "solzimer/promise-stream",
+  "keywords": [
+    "promise",
+    "FIFO",
+    "async",
+    "queue",
+    "order"
+  ]
+}
