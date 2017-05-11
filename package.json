@@ -7,7 +7,7 @@
   "email": "solzimer@gmail.com",
   "main": "main.js",
   "license": "MIT",
-  "repository": "solzimer/promise-stream",
+  "repository": "solzimer/promise-stream-queue",
   "keywords": [
     "promise",
     "stream",
