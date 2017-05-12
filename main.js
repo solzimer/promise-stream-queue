@@ -63,6 +63,7 @@ function Stream(timeout) {
 			if(closed) {
 				while(dones.length)
 					dones.pop()();
+				self.emit("done");
 			}
 		}
 	}
@@ -95,6 +96,7 @@ function Stream(timeout) {
 
 	this.close = function() {
 		closed = true;
+		self.emit("closed");
 	}
 
 	this.done = function(callback) {
@@ -102,7 +104,8 @@ function Stream(timeout) {
 
 		if(closed) {
 			while(dones.length)
-				dones.pop()();			
+				dones.pop()();
+			self.emit("done");
 		}
 	}
 

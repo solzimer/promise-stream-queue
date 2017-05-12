@@ -96,6 +96,15 @@ Pushes a promise to the stream.
 Search and discards a previously promise from the stream. This doesn't remove
 it from the stream, but the promise will be immediately rejected with a *kill* error.
 
+### stream.close()
+Closes the stream. New pushed promises will be ignored, and
+the stream will be marked as closed. The pending promises
+are still being processed.
+
+### stream.drain()
+Drains the stream. Rejects all the pending promises of the
+queue.
+
 ### stream.toArray()
 Returns a snapshot of the stream as an static array of promises.
 
@@ -103,9 +112,11 @@ Returns a snapshot of the stream as an static array of promises.
 Iterates infinitely and asynchronously over the stream.
 
 ### stream.forEachSync(callback(err,res,ex,next))
-Same as before, but now, the *next* argument is a function that must be called
-in order to move to the next element. This is useful when we want to wait to
-the callback function to finish the process before move to the next promise.
+Same as before, but now, the *next* argument is a function that must be called in order to move to the next element. This is useful when we want to wait to the callback function to finish the process before move to the next promise.
+
+### stream.done(callback)
+The callback function will be invoked when the stream is closed and empty. Useful when the stream has been closed and we want to
+know when all promises have been processed
 
 ## Events
 ### resolve
@@ -124,6 +135,18 @@ stream.on("reject",err=>console.log(err));
 Fired when the head promise has thrown an error
 ```javascript
 stream.on("catch",ex=>console.log(ex));
+```
+
+### closed
+Fired when the stream has been closed
+```javascript
+stream.on("closed",()=>console.log('Closed'));
+```
+
+### done
+Fired when the stream is closed and all promises has been processed
+```javascript
+stream.on("done",()=>console.log('Done'));
 ```
 
 ## Examples
