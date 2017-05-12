@@ -12,6 +12,10 @@ function Stream(timeout) {
 	var buffer = [];
 	var pending = false;
 	var callbacks = [];
+	var dones = [];
+	var closed = false;
+
+	function voidfn(){};
 
 	function notify(event,data) {
 		buffer.pop();
@@ -23,6 +27,7 @@ function Stream(timeout) {
 		var ex  = event=="catch"? data : null;
 
 		var defs = [];
+		var last = closed && !buffer.length;
 		callbacks.forEach(cb=>{
 			if(!cb.sync) cb.fn(err,res,ex);
 			else {
@@ -54,6 +59,12 @@ function Stream(timeout) {
 				notify("catch",err);
 			});
 		}
+		else {
+			if(closed) {
+				while(dones.length)
+					dones.pop()();
+			}
+		}
 	}
 
 	this.toArray = function() {
@@ -61,6 +72,11 @@ function Stream(timeout) {
 	}
 
 	this.push = function(pr) {
+		if(closed) {
+			pr.then(voidfn,voidfn).catch(voidfn);
+			return;
+		}
+
 		id++;
 		var item = new Item("Item_"+id,pr,timeout);
 		buffer.unshift(item);
@@ -77,12 +93,31 @@ function Stream(timeout) {
 		if(item) item.kill(reason);
 	}
 
+	this.close = function() {
+		closed = true;
+	}
+
+	this.done = function(callback) {
+		dones.push(callback);
+
+		if(closed) {
+			while(dones.length)
+				dones.pop()();			
+		}
+	}
+
+	this.drain = function() {
+		buffer.forEach(b=>b.kill("Drain"));
+	}
+
 	this.forEach = function(callback) {
 		callbacks.push({fn:callback,sync:false});
+		return this;
 	}
 
 	this.forEachSync = function(callback) {
 		callbacks.push({fn:callback,sync:true});
+		return this;
 	}
 }
 Util.inherits(Stream, EventEmitter);
