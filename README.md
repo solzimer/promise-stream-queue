@@ -3,7 +3,7 @@ Promise Stream. Queue promises and retrieve the resolved/rejected ones in the in
 
 This module is responsible for serializing promises, but allowing their asynchronous execution. Unlike other queues, where promises are executed
 serially, one after another, what this module does is insert promises in a
-queue, in a certain order, **allowing its asynchronous execution, but making the output be in the same order in which they were inserted**. As soon as the promise in the head of the tail is resolved, it is released, moving on to the next.
+queue, in a certain order, **allowing its asynchronous execution, but making the output be in the same order in which they were inserted**. As soon as the promise in the head of the queue is resolved, it is released, moving on to the next.
 
 In case of promises never resolved/rejected, the stream allows an execution
 timeout that releases the promise from the queue.
