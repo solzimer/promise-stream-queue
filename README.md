@@ -127,3 +127,5 @@ stream.on("catch",ex=>console.log(ex));
 ```
 
 ## Examples
+* [Asynchronous stream iteration](https://github.com/solzimer/promise-stream-queue/blob/master/examples/async.js)
+* [Synchronous stream iteration](https://github.com/solzimer/promise-stream-queue/blob/master/examples/sync.js)
