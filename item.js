@@ -74,12 +74,17 @@ function Item(id,pr,timeout) {
 		}
 	}
 
-	this.pr.then(thenhdl,errhdl).catch(catchhdl);
-	if(this.timeout>0) {
-		to = setTimeout(()=>{
-			self.kill("Promise timeout");
-		},this.timeout);
-	};
+	if(this.pr.then) {
+		this.pr.then(thenhdl,errhdl).catch(catchhdl);
+		if(this.timeout>0) {
+			to = setTimeout(()=>{
+				self.kill("Promise timeout");
+			},this.timeout);
+		};
+	}
+	else {
+		thenhdl(this.pr);
+	}
 }
 
 module.exports = Item;
