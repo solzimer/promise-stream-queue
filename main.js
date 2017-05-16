@@ -1,9 +1,10 @@
 const
 	EventEmitter = require('events').EventEmitter;
 	Util = require('util'),
-	Item = require('./item.js');
+	Item = require('./item.js'),
+	Stream = require('./stream.js');
 
-function Stream(timeout) {
+function PromiseStream(timeout) {
 	EventEmitter.call(this);
 
 	var self = this;
@@ -32,8 +33,11 @@ function Stream(timeout) {
 			if(!cb.sync) cb.fn(err,res,ex);
 			else {
 				defs.push(new Promise((resolve,reject)=>{
-					cb.fn(err,res,ex,()=>{
+					cb.fn(err,res,ex,(res)=>{
 						resolve();
+						if(res===false) {
+							callbacks.splice(callbacks.indexOf(cb),1);
+						}
 					});
 				}));
 			}
@@ -70,6 +74,10 @@ function Stream(timeout) {
 
 	this.toArray = function() {
 		return buffer.map(item=>item.pr);
+	}
+
+	this.toStream = function(options) {
+		return new Stream(this,options);
 	}
 
 	this.push = function(pr) {
@@ -123,6 +131,6 @@ function Stream(timeout) {
 		return this;
 	}
 }
-Util.inherits(Stream, EventEmitter);
+Util.inherits(PromiseStream, EventEmitter);
 
-module.exports = Stream;
+module.exports = PromiseStream;

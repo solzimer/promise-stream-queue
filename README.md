@@ -118,6 +118,26 @@ Same as before, but now, the *next* argument is a function that must be called i
 The callback function will be invoked when the stream is closed and empty. Useful when the stream has been closed and we want to
 know when all promises have been processed
 
+### stream.toStream(options)
+Returns a full implementation of a nodejs [Duplex Stream](https://nodejs.org/api/stream.html#stream_duplex_and_transform_streams) (Writable and Readable stream). This stream is [Object Mode](https://nodejs.org/api/stream.html#stream_object_mode) by default, and can be passed an optional transform callback before piping to another stream.
+```javascript
+var stream = new Stream().toStream({readableObjectMode:false});
+
+function trfn(data,callback) {
+	callback(JSON.stringify(data)+"\n");
+}
+
+// Pipe stream to stdout
+stream.transform(trfn).pipe(process.stdout);
+
+// Write promise to stream
+stream.write(new Promise((resolve,reject)=>{
+	setTimeout(()=>{
+		resolve({data:"This is a json data object"});
+	},100);
+}));
+```
+
 ## Events
 ### resolve
 Fired when the head promise is resolved

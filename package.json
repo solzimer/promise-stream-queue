@@ -11,7 +11,8 @@
   "keywords": [
     "promise",
     "stream",
-    "FIFO",
+		"duplex",
+		"FIFO",
     "async",
     "queue",
     "order"
