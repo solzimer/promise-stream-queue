@@ -18,6 +18,22 @@ function PromiseStream(timeout) {
 
 	function voidfn(){};
 
+	function nextTickFetch() {
+		process.nextTick(fetchNext);
+	}
+
+	function notifiyResolve(data) {
+		notify("resolve",data);
+	}
+
+	function notifiyError(err) {
+		notify("reject",err);
+	}
+
+	function notifiyCatch(err) {
+		notify("catch",err);
+	}
+
 	function notify(event,data) {
 		buffer.pop();
 		self.emit(event,data);
@@ -29,7 +45,10 @@ function PromiseStream(timeout) {
 
 		var defs = [];
 		var last = closed && !buffer.length;
-		callbacks.forEach(cb=>{
+		let len = callbacks.length;
+
+		for(let i=0;i<len;i++) {
+			let cb = callbacks[i];
 			if(!cb.sync) cb.fn(err,res,ex);
 			else {
 				defs.push(new Promise((resolve,reject)=>{
@@ -41,11 +60,9 @@ function PromiseStream(timeout) {
 					});
 				}));
 			}
-		});
+		};
 
-		Promise.all(defs).then(()=>{
-			process.nextTick(fetchNext);
-		});
+		Promise.all(defs).then(nextTickFetch);
 	}
 
 	function fetchNext() {
@@ -55,13 +72,9 @@ function PromiseStream(timeout) {
 			item = buffer[buffer.length-1];
 			pending = true;
 
-			item.then(data=>{
-				notify("resolve",data);
-			},err=>{
-				notify("reject",err);
-			}).catch(err=>{
-				notify("catch",err);
-			});
+			item.
+				then(notifiyResolve,notifiyError).
+				catch(notifiyCatch);
 		}
 		else {
 			if(closed) {
