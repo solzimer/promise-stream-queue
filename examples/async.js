@@ -20,8 +20,9 @@ setInterval(()=>{
 		var to = Math.floor(Math.random()*10000);
 		var data = "PR => "+seq+", "+to;
 		setTimeout(()=>{
-			if(rnd<=0.5) {resolve(data);}
-			else {reject(data);}
+			//if(rnd<=0.5) {resolve(data);}
+			//else {reject(data);}
+			resolve(data);
 		},to);
 	}));
 },100);

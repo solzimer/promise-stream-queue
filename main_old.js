@@ -11,7 +11,7 @@ function PromiseStream(timeout) {
 	var self = this;
 	var id = 0;
 	var timeout = timeout || 0;
-	var buffer = yallist.create([]);
+	var buffer = [];
 	var pending = false;
 	var callbacks = [];
 	var dones = [];
@@ -70,7 +70,7 @@ function PromiseStream(timeout) {
 		if(pending) return;
 
 		if(buffer.length) {
-			item = buffer.tail.value;
+			item = buffer[buffer.length-1];
 			pending = true;
 
 			item.
@@ -109,10 +109,10 @@ function PromiseStream(timeout) {
 	this.kill = function(pr,reason) {
 		var idx = -1, item = null;
 		if(pr) {
-			idx = buffer.forEach((item,i)=>idx=item.pr==pr?i:idx);
+			idx = buffer.indexOf(item=>item.pr==pr);
 		}
-		if(idx==-1) item = buffer.tail.value;
-		else item = buffer.get(idx);
+		if(idx==-1) item = buffer[buffer.length-1];
+		else item = buffer[idx];
 		if(item) item.kill(reason);
 	}
 

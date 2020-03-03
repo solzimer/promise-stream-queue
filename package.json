@@ -16,5 +16,8 @@
     "async",
     "queue",
     "order"
-  ]
+  ],
+  "dependencies": {
+    "yallist": "^4.0.0"
+  }
 }
