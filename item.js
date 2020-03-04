@@ -1,7 +1,7 @@
 class Item {
 	constructor(id, pr, timeout) {
 		this.id = id;
-		this.ts = Date.now();
+		//this.ts = Date.now();
 		this.timeout = timeout || 0;
 		this.pr = pr;
 
