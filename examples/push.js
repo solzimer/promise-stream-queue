@@ -1,4 +1,4 @@
-const Stream = require('../main2.js');
+const Stream = require('../main.js');
 const MAX = 10000;
 
 

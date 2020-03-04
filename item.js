@@ -1,97 +1,109 @@
-function Item(id,pr,timeout) {
-	this.id = id;
-	this.ts = Date.now();
-	this.timeout = timeout||0;
-	this.pr = pr;
+class Item {
+	constructor(id, pr, timeout) {
+		this.id = id;
+		this.ts = Date.now();
+		this.timeout = timeout || 0;
+		this.pr = pr;
 
-	var self = this;
-	var onsuccess = [];
-	var onerror = [];
-	var oncatch = [];
-	var status = "pending";
-	var result = null;
-	var to = null;
+		this._onsuccess = [];
+		this._onerror = [];
+		this._oncatch = [];
+		this._to = null;
+		this.status = "pending";
+		this.result = null;
 
-	function checkNotify() {
-		if(status=="resolve")	thenhdl(result);
-		else if(status=="reject")	errhdl(result);
-		else if(status=="catch") catchhdl(result);
-		else if(status=="killed") killhdl(result);
+		this.tryResolve(pr);
 	}
 
-	function set(st,res) {
-		status = st;
-		result = res;
-		if(to) clearTimeout(to);
-		to = null;
+	async tryResolve(pr) {
+		if(pr.then) {
+			if(this.timeout>0) {
+				this._to = setTimeout(()=>{
+					this.kill("Promise timeout");
+				},this.timeout);
+			}
+
+			try {
+				let data = await pr;
+				this.thenhdl(data);
+			}catch(err) {
+				this.catchhdl(err);
+			}
+		}
+		else {
+			this.thenhdl(this.pr);
+		}
 	}
 
-	this.kill = function(msg) {
-		killhdl(msg||"Promise killed");
+	checkNotify() {
+		let status = this.status;
+		if(status=="resolve")	this.thenhdl(this.result);
+		else if(status=="reject")	this.errhdl(this.result);
+		else if(status=="catch") this.catchhdl(this.result);
+		else if(status=="killed") this.killhdl(this.result);
 	}
 
-	this.then = function(cbsuccess,cberror) {
-		if(cbsuccess) onsuccess.push(cbsuccess);
-		if(cberror) onerror.push(cberror);
-		checkNotify();
+	set(st,res) {
+		this.status = st;
+		this.result = res;
+		if(this._to) clearTimeout(this._to);
+		this._to = null;
+	}
+
+	kill(msg) {
+		this.killhdl(msg||"Promise killed");
+	}
+
+	then(cbsuccess,cberror) {
+		if(cbsuccess) this._onsuccess.push(cbsuccess);
+		if(cberror) this._onerror.push(cberror);
+		this.checkNotify();
 		return this;
 	}
 
-	this.catch = function(cbcatch) {
-		if(cbcatch) oncatch.push(cbcatch);
-		checkNotify();
+	catch(cbcatch) {
+		if(cbcatch) this._oncatch.push(cbcatch);
+		this.checkNotify();
 		return this;
 	}
 
-	function thenhdl(data) {
-		if(status=="killed") return;
-		set("resolve",data);
-		let len = onsuccess.length;
+	thenhdl(data) {
+		if(this.status=="killed") return;
+		this.set("resolve",data);
+		let len = this._onsuccess.length;
 		for(let i=0;i<len;i++) {
-			onsuccess[i](data);
+			this._onsuccess[i](data);
 		}
-		onsuccess = [];
+		this._onsuccess = [];
 	}
 
-	function errhdl(error) {
-		if(status=="killed") return;
-		set("reject",error);
-		let len = onerror.length;
+	errhdl(error) {
+		if(this.status=="killed") return;
+		this.set("reject",error);
+		let len = this._onerror.length;
 		for(let i=0;i<len;i++) {
-			onerror[i](error);
+			this._onerror[i](error);
 		}
-		onerror = [];
+		this._onerror = [];
 	}
 
-	function catchhdl(error) {
-		if(status=="killed") return;
-		set("catch",error);
-		let len = oncatch.length;
+	catchhdl(error) {
+		if(this.status=="killed") return;
+		this.set("catch",error);
+		let len = this._oncatch.length;
 		for(let i=0;i<len;i++) {
-			oncatch[i](error);
+			this._oncatch[i](error);
 		}
-		oncatch = [];
+		this._oncatch = [];
 	}
 
-	function killhdl(error) {
-		set("killed",error);
-		let len = onerror.length;
+	killhdl(error) {
+		this.set("killed",error);
+		let len = this._onerror.length;
 		for(let i=0;i<len;i++) {
-			onerror[i](error);
+			this._onerror[i](error);
 		}
-		onerror = [];		
-	}
-
-	if(this.pr.then) {
-		this.pr.then(thenhdl,errhdl).catch(catchhdl);
-		if(this.timeout>0) {
-			to = setTimeout(()=>{
-				self.kill("Promise timeout");
-			},this.timeout);
-		};
-	}
-	else {
-		thenhdl(this.pr);
+		this._onerror = [];
 	}
 }
 
