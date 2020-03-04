@@ -31,14 +31,14 @@ function Item(id,pr,timeout) {
 	}
 
 	this.then = function(cbsuccess,cberror) {
-		if(cbsuccess) onsuccess.unshift(cbsuccess);
-		if(cberror) onerror.unshift(cberror);
+		if(cbsuccess) onsuccess.push(cbsuccess);
+		if(cberror) onerror.push(cberror);
 		checkNotify();
 		return this;
 	}
 
 	this.catch = function(cbcatch) {
-		if(cbcatch) oncatch.unshift(cbcatch);
+		if(cbcatch) oncatch.push(cbcatch);
 		checkNotify();
 		return this;
 	}
@@ -46,32 +46,40 @@ function Item(id,pr,timeout) {
 	function thenhdl(data) {
 		if(status=="killed") return;
 		set("resolve",data);
-		while(onsuccess.length) {
-			onsuccess.pop()(data);
+		let len = onsuccess.length;
+		for(let i=0;i<len;i++) {
+			onsuccess[i](data);
 		}
+		onsuccess = [];
 	}
 
 	function errhdl(error) {
 		if(status=="killed") return;
 		set("reject",error);
-		while(onerror.length) {
-			onerror.pop()(error);
+		let len = onerror.length;
+		for(let i=0;i<len;i++) {
+			onerror[i](error);
 		}
+		onerror = [];
 	}
 
 	function catchhdl(error) {
 		if(status=="killed") return;
 		set("catch",error);
-		while(oncatch.length) {
-			oncatch.pop()(error);
+		let len = oncatch.length;
+		for(let i=0;i<len;i++) {
+			oncatch[i](error);
 		}
+		oncatch = [];
 	}
 
 	function killhdl(error) {
 		set("killed",error);
-		while(onerror.length) {
-			onerror.pop()(error);
+		let len = onerror.length;
+		for(let i=0;i<len;i++) {
+			onerror[i](error);
 		}
+		onerror = [];		
 	}
 
 	if(this.pr.then) {
